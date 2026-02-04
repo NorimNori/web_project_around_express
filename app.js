@@ -7,8 +7,10 @@ const app = express();
 app.use(express.json());
 
 const cardsRouter = require("./routes/cards");
+const usersRouter = require("./routes/users");
 
 app.use("/cards", cardsRouter);
+app.use("/users", usersRouter);
 
 app.use((req, res) => {
   res.status(404).json({
