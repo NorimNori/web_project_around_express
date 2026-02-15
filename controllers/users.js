@@ -57,7 +57,6 @@ const createUser = (req, res) => {
     });
 };
 
-// PATCH /users/me
 const updateUser = (req, res) => {
   const { name, about } = req.body;
 
@@ -83,7 +82,6 @@ const updateUser = (req, res) => {
     });
 };
 
-// PATCH /users/me/avatar
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
 
