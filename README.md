@@ -2,38 +2,56 @@
 
 ## Descripción del Proyecto
 
-Around the U.S. Backend es una API RESTful desarrollada como parte del programa TripleTen en el curso de Introducción a Backend con Node.js y Express. Este proyecto proporciona los servicios de backend para la aplicación "Alrededor de los EE. UU.", permitiendo gestionar usuarios y tarjetas de lugares.
+**Around the U.S. Backend** es una API RESTful desarrollada como parte del programa TripleTen en el curso de Introducción a Backend con Node.js y Express.
 
-La API actualmente soporta operaciones de lectura (GET) para usuarios y tarjetas, con manejo apropiado de errores para recursos no encontrados.
+Esta API proporciona los servicios de backend para la aplicación "Alrededor de los EE. UU.", permitiendo gestionar:
 
-## Funcionalidad
+- Usuarios
+- Tarjetas de lugares
+- Likes en tarjetas
+- Actualización de perfil y avatar
 
-### Endpoints Disponibles
+En este sprint el proyecto evolucionó de usar archivos JSON estáticos a utilizar **MongoDB con Mongoose**, incorporando operaciones completas CRUD y manejo avanzado de errores.
 
-**Usuarios:**
-- `GET /users` - Obtiene la lista completa de usuarios
-- `GET /users/:userId` - Obtiene un usuario específico por ID
+---
 
-**Tarjetas:**
-- `GET /cards` - Obtiene la lista completa de tarjetas
+## 🚀 Funcionalidad
 
-**Manejo de Errores:**
-- Devuelve código de estado 404 y mensaje JSON para IDs de usuario inexistentes
-- Devuelve código de estado 404 para rutas no existentes
+### 📌 Endpoints Disponibles
 
-### Respuestas de la API
+#### 👤 Usuarios
 
-**Éxito (200):**
-```json
-[
-  {
-    "_id": "5d8b8592978f8bd833ca8133",
-    "name": "Elise Bouer",
-    "about": "Fotógrafa profesional",
-    "avatar": "https://practicum-content.s3.us-west-1.amazonaws.com/..."
-  }
-]
-```
+- `GET /users` → Obtiene todos los usuarios  
+- `GET /users/:userId` → Obtiene un usuario por ID  
+- `PATCH /users/me` → Actualiza nombre y descripción del usuario  
+- `PATCH /users/me/avatar` → Actualiza el avatar del usuario  
+
+#### 🗂 Tarjetas
+
+- `GET /cards` → Obtiene todas las tarjetas  
+- `POST /cards` → Crea una nueva tarjeta  
+- `DELETE /cards/:cardId` → Elimina una tarjeta  
+- `PUT /cards/:cardId/likes` → Da like a una tarjeta  
+- `DELETE /cards/:cardId/likes` → Quita el like de una tarjeta  
+
+---
+
+## ❤️ Gestión de Likes
+
+Para evitar que un usuario dé like más de una vez a la misma tarjeta, se utilizan operadores especiales de MongoDB:
+
+- **`$addToSet`** → Agrega el ID del usuario solo si no existe en el array  
+- **`$pull`** → Elimina el ID del usuario del array  
+
+Ejemplo de implementación:
+
+```js
+Card.findByIdAndUpdate(
+  req.params.cardId,
+  { $addToSet: { likes: req.user._id } },
+  { new: true }
+)
+
 
 **Error 404 - Usuario no encontrado:**
 ```json
@@ -54,7 +72,10 @@ La API actualmente soporta operaciones de lectura (GET) para usuarios y tarjetas
 ### Stack Tecnológico
 - **Node.js** - Entorno de ejecución de JavaScript
 - **Express.js** - Framework web minimalista para Node.js
-- **JSON** - Almacenamiento temporal de datos
+- **MongoDB** – Base de datos NoSQL utilizada para almacenar usuarios y tarjetas.
+- **MongoDB Compass** – Herramienta gráfica para visualizar y administrar la base de datos.
+- **Mongoose** – ODM para modelar y gestionar datos en MongoDB desde Node.js.
+- **JavaScript (ES6+)** – Lenguaje principal del proyecto para la lógica del servidor.
 
 ### Técnicas Implementadas
 - **Arquitectura modular** - Separación de responsabilidades usando routers
@@ -67,16 +88,19 @@ La API actualmente soporta operaciones de lectura (GET) para usuarios y tarjetas
 ### Estructura del Proyecto
 ```
 project-root/
-├── app.js              # Punto de entrada de la aplicación
+├── app.js
+├── controllers/
+│   ├── users.js
+│   └── cards.js
 ├── routes/
-│   ├── users.js        # Rutas de usuarios
-│   └── cards.js        # Rutas de tarjetas
-├── data/
-│   ├── users.json      # Datos de usuarios
-│   └── cards.json      # Datos de tarjetas
+│   ├── users.js
+│   └── cards.js
+├── models/
+│   ├── user.js
+│   └── card.js
 ├── package.json
 └── README.md
-```
+
 
 ## Instalación y Uso
 
@@ -111,19 +135,25 @@ Puedes probar los siguientes endpoints:
 - `GET http://localhost:3000/users/5d8b8592978f8bd833ca8133`
 - `GET http://localhost:3000/cards`
 - `GET http://localhost:3000/ruta-inexistente` (para probar el error 404)
+- `GET    http://localhost:3000/users`
+- `PATCH  http://localhost:3000/users/me`
+- `POST   http://localhost:3000/cards`
+- `PUT    http://localhost:3000/cards/:cardId/likes`
+- `DELETE http://localhost:3000/cards/:cardId/likes`
 
 ## Próximas Funcionalidades
 
 En futuras actualizaciones me gustaría implementar:
-- Operaciones POST, PATCH y DELETE
-- Conexión a base de datos (MongoDB)
 - Autenticación y autorización de usuarios
 - Validación de datos con middleware
-- Gestión de likes en tarjetas
+- Autenticación con JWT
+- Autorización por propietario de tarjeta
+- Validación avanzada con Celebrate/Joi
+- Manejo centralizado de errores personalizados
 
 ## Autor
 
-Desarrollado como parte del bootcamp de TripleTen - Proyecto 16
+Desarrollado como parte del bootcamp de TripleTen - Proyecto 17
 
 ---
 
